@@ -1,6 +1,7 @@
 import { FooBase } from "./FooBase";
 
 describe("SQL instructions", () => {
+  // ----------------------- SELECTION -----------------------
   it("should concatenate strings correctly", () => {
     const orm = new FooBase()
     expect(orm.select('email').selectField).toEqual('select email')
@@ -43,6 +44,7 @@ describe("SQL instructions", () => {
     ).toEqual('select email, password, id from users where id = $1 and email = $2 and token = $3 and status = $4')
   })
 
+  // ----------------------- INSERTION -----------------------
   it("should concatenate string with single column and values passed as argument to create a correct insert script", () => {
     const orm = new FooBase()
     expect(orm
@@ -63,6 +65,30 @@ describe("SQL instructions", () => {
     ).toEqual('insert into users (email, password, token) values ($1, $2, $3)')
   })
 
+  it("should concatenate string to create a correct insert script with a returning values", () => {
+    const orm = new FooBase()
+    expect(orm
+      .insert(['email', 'password', 'token'], ['jtzuya@gmail.com', 'hash', 'randomstring'])
+      .from('users')
+      .ret(['id', 'email'])
+      .analyze()
+      .finalSQL
+    ).toEqual('insert into users (email, password, token) values ($1, $2, $3) returning id, email')
+  })
+
+
+  it("should concatenate string to create a correct insert script without a returning value even though we are calling the ret method", () => {
+    const orm = new FooBase()
+    expect(orm
+      .insert(['email', 'password', 'token'], ['jtzuya@gmail.com', 'hash', 'randomstring'])
+      .from('users')
+      .ret('')
+      .analyze()
+      .finalSQL
+    ).toEqual('insert into users (email, password, token) values ($1, $2, $3)')
+  })
+
+  // ----------------------- UPDATE -----------------------
   it("should concatenate string with column and value passed as argument to create a correct update script", () => {
     const orm = new FooBase()
     expect(orm

@@ -33,6 +33,7 @@ class FooBase {
   private table           : string = '';
   public  selectField     : string = '';
   private insertField     : string = '';
+  private returning       : string = '';
   private updateField     : string = '';
   private condition       : conditionTypes = {column: '', value: []};
   private set             : string = '';
@@ -154,6 +155,22 @@ class FooBase {
     return this
   }
 
+  // Return data for each column after insertion.
+  ret(column: string | string[] = ''): this {
+    if (column.length < 1) return this
+    if (typeof column === 'string' && column.length > 0) this.returning = ' returning ' + column
+
+    let temp = ' returning '
+
+    for(let i = 0; i < column.length; i++) {
+      temp += column[i]
+      if(i !== column.length - 1) temp += ', '
+    }
+
+    this.returning = temp
+    return this
+  }
+
   analyze(): this {
     let method = '', table = '', set = ''
 
@@ -173,7 +190,7 @@ class FooBase {
       set     = this.set
     }
         
-    this.finalSQL = method + table + set + this.condition.column
+    this.finalSQL = method + table + set + this.condition.column + this.returning
 
     return this
   }
@@ -212,6 +229,7 @@ class FooBase {
     this.table          = '';
     this.selectField    = '';
     this.insertField    = '';
+    this.returning      = '';
     this.updateField    = '';
     this.condition      = {column: '', value: []}
   }
