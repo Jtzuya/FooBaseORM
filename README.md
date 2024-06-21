@@ -9,21 +9,26 @@ FooBase is a personalized ORM for Postgresql like supabase.
 ```python
 import { FooBase } from './FooBase
 
-async function validateEmail(email: string) {
+async function getAllEmail() {
  const orm = new FooBase()
- const {data, message} = await  orm
-                                  .select('*')
-                                  .from('users')
-                                  .eq('email', email)
-                                  .exec()
-
+ const {data, message} = await orm.select('email').from('users')
  return data
 }
 
-# If success: Returns all possible data where email is equal to "jtzuya@gmail.com"
-validateEmail("jtzuya@gmail.com")
+# If success: Returns all possible email data where email is equal to "jtzuya@gmail.com"
+getAllEmail()
+
+async function getEmail(id: number) {
+ const orm = new FooBase()
+ const {data, message} = await orm.select('*').eq('id', id)from('users')
+ return data
+}
+
+# If success: Gets all the data of a user that has an id of 1
+getEmail(1)
 ```
 
+The `.from(tableName)` method should always be chained as the last method.  
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

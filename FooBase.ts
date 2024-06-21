@@ -6,8 +6,8 @@ interface conditionTypes {
 }
 
 interface databasePromise {
-  data: any;
-  message: any;
+  data?     : any;
+  message?  : any;
 }
 
 interface databaseConfig {
@@ -30,19 +30,12 @@ const db = new Pool(databaseConfig)
 
 class FooBase {
   private errors          : string[] = [];
-  private table           : string = '';
   public  selectField     : string = '';
   private insertField     : string = '';
   private returning       : string = '';
   private updateField     : string = '';
   private condition       : conditionTypes = {column: '', value: []};
   private set             : string = '';
-  public  finalSQL        : string = '';
-  
-  from(table: string): this {
-    this.table = table
-    return this
-  }
 
   select(fields: string | string[]): this {
     let temp = 'select '
@@ -171,62 +164,41 @@ class FooBase {
     return this
   }
 
-  analyze(): this {
-    let method = '', table = '', set = ''
+  combine(tableName: string): string {
+    let 
+      method  = '', 
+      table   = tableName, 
+      set     = this.set !== '' ? this.set : ''
 
     if (this.selectField !== '') {
       method  = this.selectField
-      table   = ` from ${this.table}`
+      table   = ` from ${tableName}`
     }
 
-    if (this.insertField !== '') {
-      method  = this.insertField
-      table   = this.table
-    }
-
-    if (this.updateField !== '') {
-      method  = this.updateField
-      table   = this.table
-      set     = this.set
-    }
+    if (this.insertField !== '') method  = this.insertField
+    if (this.updateField !== '') method  = this.updateField
         
-    this.finalSQL = method + table + set + this.condition.column + this.returning
-
-    return this
+    return method + table + set + this.condition.column + this.returning
   }
 
-  async exec(): Promise<databasePromise> {
-    this.analyze()
-    let SQLScript = this.finalSQL
-    let values    = this.condition.value
+  async from(tableName: string): Promise<databasePromise> {
+    const 
+      values  = this.condition.value,
+      _string = this.combine(tableName)
+    
     this.reset()
 
-    const executePromise = new Promise<{rows: any[]}>(function(resolve, reject) {
-      db.query(SQLScript, values, function(error, results) {
-        if(error) reject(new Error(`Error caught: ${error}`))
-        resolve(results)
-      })
-    })
-
     try {
-      const results = await executePromise
+      const results = await db.query(_string, values)
       const data = results.rows
-
-      return {
-        data: data,
-        message: 'query executed',
-      }
+      return { data }
     } catch(error) {
-      return {
-        data: null,
-        message: error
-      }
+      return { message: 'fail query' }
     }
   }
 
   reset() {
     this.errors         = [];
-    this.table          = '';
     this.selectField    = '';
     this.insertField    = '';
     this.returning      = '';
