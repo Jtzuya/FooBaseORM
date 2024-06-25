@@ -9,26 +9,49 @@ FooBase is a personalized ORM for Postgresql like supabase.
 ```python
 import { FooBase } from './FooBase
 
-async function getAllEmail() {
- const orm = new FooBase()
- const {data, message} = await orm.select('email').from('users')
- return data
+const orm = new Foobase() // create a new instance
+
+{
+ // Gets all email from the users table
+ const {data, message} = await orm
+  .select('email')
+  .from('users')
 }
 
-# If success: Returns all possible email data where email is equal to "jtzuya@gmail.com"
-getAllEmail()
-
-async function getEmail(id: number) {
- const orm = new FooBase()
- const {data, message} = await orm.select('*').eq('id', id)from('users')
- return data
+{
+ // Gets all data from the users table where id is 3
+ const {data, message} = await orm
+  .select('*')
+  .eq('id', id)
+  .from('users')
 }
-
-# If success: Gets all the data of a user that has an id of 1
-getEmail(1)
 ```
 
-The `.from(tableName)` method should always be chained as the last method.  
+## Important Note
+- Always chain the `.from(tableName)` method as the last method in the chain.
+- The sample code blocks above assume usage within an asynchronous function.
+
+## Example
+```javascript
+async function fetchData() {
+  // Example 1: Get All Emails from the Users Table
+  const { data: emails, message: emailMessage } = await orm
+    .select('email')
+    .from('users');
+
+  // Example 2: Get All Data from the Users Table Where ID is 3
+  const { data: userData, message: userMessage } = await orm
+    .select('*')
+    .eq('id', 3)
+    .from('users');
+
+  // Handle the data and messages as needed
+  console.log(emails, emailMessage);
+  console.log(userData, userMessage);
+}
+
+fetchData(); // call the function
+```
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
