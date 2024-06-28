@@ -203,7 +203,8 @@ class FooBase {
     this.insertField    = '';
     this.returning      = '';
     this.updateField    = '';
-    this.condition      = {column: '', value: []}
+    this.condition      = {column: '', value: []};
+    this.set            = '';
   }
 }
 
